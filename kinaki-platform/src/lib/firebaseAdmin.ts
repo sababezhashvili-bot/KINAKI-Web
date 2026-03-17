@@ -21,4 +21,14 @@ if (!admin.apps.length) {
   }
 }
 
-export const bucket = admin.storage().bucket()
+// Export a proxy or a helper to access the bucket safely
+export const bucket = admin.apps.length > 0 
+  ? admin.storage().bucket() 
+  : null as unknown as ReturnType<typeof admin.storage>['bucket']
+
+export function getStorageBucket() {
+  if (!admin.apps.length) {
+    throw new Error('Firebase Admin not initialized. Check your environment variables.')
+  }
+  return admin.storage().bucket()
+}
