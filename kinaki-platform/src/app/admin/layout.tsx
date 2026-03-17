@@ -12,7 +12,8 @@ import {
   Map as MapIcon, 
   Search, 
   User, 
-  Menu 
+  Menu,
+  Plus
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -59,6 +60,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p className="text-[10px] text-stone-300 uppercase tracking-widest font-light">KINAKI v1.0</p>
         </div>
       </aside>
+
+      {/* Permanent Add Project Button - Fixed for visibility */}
+      <div className="fixed bottom-12 right-12 z-[100]">
+        <Link
+          href="/admin/projects/new"
+          className="flex items-center gap-3 bg-stone-900 text-white px-8 py-4 text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-stone-800 transition-all rounded-full shadow-2xl border border-white/20"
+        >
+          <Plus size={16} />
+          Add Project
+        </Link>
+      </div>
 
       {/* Main content - Start after navbar height with extra breathing room */}
       <main className="flex-1 min-w-0 pt-[calc(var(--navbar-height)+2rem)]">

@@ -28,8 +28,8 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
     status: initialData?.status || 'draft',
     coverImage: initialData?.coverImage || '',
     featured: initialData?.featured || false,
-    lat: initialData?.pin?.lat || 42.32,
-    lng: initialData?.pin?.lng || 43.35,
+    latitude: initialData?.latitude ?? initialData?.pin?.lat ?? 42.1, // Fallback to a valid default if null
+    longitude: initialData?.longitude ?? initialData?.pin?.lng ?? 44.2,
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -42,7 +42,23 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Strict numeric validation
+    const latNum = parseFloat(formData.latitude.toString())
+    const lngNum = parseFloat(formData.longitude.toString())
+    
+    if (!formData.title?.trim()) {
+      alert("Project title is required")
+      return
+    }
+
+    if (isNaN(latNum) || isNaN(lngNum)) {
+      alert("Latitude and longitude must be valid numeric coordinates")
+      return
+    }
+
     setIsSaving(true)
+    console.log('[ProjectForm] Submitting data to API:', { ...formData, lat: latNum, lng: lngNum })
     
     try {
       const url = initialData?.id 
@@ -52,16 +68,23 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
       const res = await fetch(url, {
         method: initialData?.id ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          lat: latNum, 
+          lng: lngNum
+        })
       })
 
-      if (!res.ok) throw new Error('Failed to save project')
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}))
+        throw new Error(errBody.error || 'Failed to save project server-side')
+      }
       
-      router.push('/admin/dashboard')
+      router.push('/admin/projects') // Return to the list page I just restored
       router.refresh()
-    } catch (err) {
-      console.error(err)
-      alert('Error saving project')
+    } catch (err: any) {
+      console.error('[ProjectForm Error]', err)
+      alert(`Save Failed: ${err.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -132,9 +155,9 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
       {/* Location & Pin Section */}
       <section className="bg-white border border-stone-100 p-10 space-y-8">
         <PinManager 
-          initialLat={formData.lat} 
-          initialLng={formData.lng} 
-          onLocationSelect={(lat, lng) => setFormData(p => ({ ...p, lat, lng }))}
+          initialLat={formData.latitude} 
+          initialLng={formData.longitude} 
+          onLocationSelect={(lat, lng) => setFormData(p => ({ ...p, latitude: lat, longitude: lng }))}
         />
       </section>
 

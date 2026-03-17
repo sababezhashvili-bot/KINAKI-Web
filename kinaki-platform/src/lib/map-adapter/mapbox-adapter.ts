@@ -16,23 +16,38 @@ class MapboxAdapterClass implements MapAdapter {
     return MapboxAdapterClass.instance
   }
 
+  private eventQueue: Array<{ event: string, handler: (e?: unknown) => void }> = []
+
   async init(options: MapOptions) {
     if (typeof window === 'undefined') return
 
     // If already initialized with this container, don't recreate
-    if (this._map && this._map.getContainer() === options.container) {
-      console.log('[MapboxAdapter] Reusing existing map instance')
-      return
+    if (this._map) {
+      if (this._map.getContainer() === options.container) {
+        console.log('[MapboxAdapter] Reusing existing map instance')
+        this.flushEventQueue()
+        return
+      } else {
+        console.log('[MapboxAdapter] Container changed. Cleaning up old map instance...')
+        this.destroy()
+      }
     }
 
     // Lazy-load mapbox-gl only on client
     const module = await import('mapbox-gl')
     mapboxgl = (module as any).default || module
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
-    console.log('[MapboxAdapter] Using token:', token ? `${token.substring(0, 10)}...` : 'MISSING')
+    
+    // Check multiple possible env var names for the token
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 
+                  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 
+                  ''
+    
+    if (typeof window !== 'undefined') {
+      ;(window as any)._kinakiMapTokenStatus = token ? 'PRESENT' : 'MISSING'
+    }
+
     ;(mapboxgl as any).accessToken = token
 
-    console.log('[MapboxAdapter] Initializing new map instance')
     if (!mapboxgl) throw new Error('[MapboxAdapter] mapbox-gl failed to load')
     
     this._map = new mapboxgl.Map({
@@ -42,13 +57,15 @@ class MapboxAdapterClass implements MapAdapter {
       zoom: options.zoom,
       antialias: true,
       attributionControl: false,
-      dragRotate: false, // Disable rotation to prevent compass from appearing/being useful
-      touchZoomRotate: false,
+      dragRotate: true,
+      touchZoomRotate: true,
+    })
+
+    this._map.on('load', () => {
+      this.flushEventQueue()
     })
 
     this._map.on('style.load', () => {
-      console.log('[MapboxAdapter] Style loaded. Adding sources.')
-      // Add DEM source for terrain
       if (!this._map.getSource('mapbox-dem')) {
         this._map.addSource('mapbox-dem', {
           'type': 'raster-dem',
@@ -59,10 +76,14 @@ class MapboxAdapterClass implements MapAdapter {
       }
     })
 
-    // Expose to window as ultimate fallback
+    // Expose to window
     if (typeof window !== 'undefined') {
       ;(window as any).kinakiAdapter = this
     }
+  }
+
+  isReady() {
+    return !!this._map && this._map.loaded()
   }
 
   setStyle(styleUrl: string) {
@@ -82,7 +103,18 @@ class MapboxAdapterClass implements MapAdapter {
   }
 
   addMarker(id: string, coords: LngLat, opts: MarkerOptions = {}) {
-    if (!mapboxgl || !this._map) return
+    if (!mapboxgl || !this._map) {
+      console.warn('[MapboxAdapter] Cannot add marker, map not ready', id)
+      return
+    }
+    
+    // Remove existing if it exists (idempotency)
+    if (this.markers.has(id)) {
+      this.removeMarker(id)
+    }
+
+    console.log(`[MapboxAdapter] CREATING CUSTOM MARKER ${id} at`, coords)
+
     const el = document.createElement('div')
     el.className = opts.className || 'kinaki-marker'
     const size = opts.size || 20
@@ -95,10 +127,7 @@ class MapboxAdapterClass implements MapAdapter {
     el.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)'
     el.style.zIndex = '1000'
     
-    // Simple pulse effect
-    el.style.transition = 'transform 0.2s ease-out'
-    el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.2)' })
-    el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
+    // No hover transform to prevent jumping
     
     if (opts.onClick) {
       el.addEventListener('click', (e) => {
@@ -110,9 +139,11 @@ class MapboxAdapterClass implements MapAdapter {
     }
 
     const marker = new (mapboxgl as any).Marker({ element: el })
-      .setLngLat([coords.lng, coords.lat])
+      .setLngLat([Number(coords.lng), Number(coords.lat)])
       .addTo(this._map)
+    
     this.markers.set(id, marker)
+    console.log(`[MapboxAdapter] CUSTOM MARKER ${id} ADDED TO MAP`)
   }
 
   removeMarker(id: string) {
@@ -125,8 +156,6 @@ class MapboxAdapterClass implements MapAdapter {
       console.warn('[MapboxAdapter] Map instance not ready for layer:', layerId)
       return
     }
-
-    console.log(`[MapboxAdapter] Setting visibility for ${layerId} to ${visible}`)
 
     if (layerId === 'buildings3d' || layerId === '3d-buildings') {
       const realId = '3d-buildings'
@@ -159,15 +188,12 @@ class MapboxAdapterClass implements MapAdapter {
 
     try {
       if (!this._map.isStyleLoaded()) {
-        console.warn(`[MapboxAdapter] Style not loaded yet for ${layerId}. Retrying...`)
         setTimeout(() => this.setLayerVisibility(layerId, visible), 100)
         return
       }
 
       if (this._map.getLayer(layerId)) {
         this._map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none')
-      } else {
-        console.warn(`[MapboxAdapter] Layer not found in style: ${layerId}`)
       }
     } catch (err) {
       console.error(`[MapboxAdapter] Error setting visibility for ${layerId}:`, err)
@@ -178,9 +204,16 @@ class MapboxAdapterClass implements MapAdapter {
     if (!this._map) return
     if (enabled) {
       this._map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 })
+      this.setPitch(45)
     } else {
       this._map.setTerrain(null as any)
+      this.setPitch(0)
     }
+  }
+
+  setPitch(pitch: number) {
+    if (!this._map) return
+    this._map.easeTo({ pitch, duration: 1000 })
   }
 
   setWaterHighlight(enabled: boolean) {
@@ -225,12 +258,30 @@ class MapboxAdapterClass implements MapAdapter {
     this._map?.setFilter(layerId, filter as any)
   }
 
+  private flushEventQueue() {
+    if (!this._map) return
+    console.log(`[MapboxAdapter] Flushing ${this.eventQueue.length} queued events`)
+    while (this.eventQueue.length > 0) {
+      const { event, handler } = this.eventQueue.shift()!
+      this._map.on(event, handler)
+    }
+  }
+
   on(event: string, handler: (e?: unknown) => void) {
-    this._map?.on(event as any, handler)
+    if (this._map) {
+      this._map.on(event, handler)
+    } else {
+      console.log(`[MapboxAdapter] Queuing event: ${event}`)
+      this.eventQueue.push({ event, handler })
+    }
   }
 
   off(event: string, handler: (e?: unknown) => void) {
-    this._map?.off(event as any, handler)
+    if (this._map) {
+      this._map.off(event, handler)
+    } else {
+      this.eventQueue = this.eventQueue.filter(q => !(q.event === event && q.handler === handler))
+    }
   }
 
   resize() {
@@ -238,13 +289,25 @@ class MapboxAdapterClass implements MapAdapter {
   }
 
   destroy() {
-    // In singleton mode, we might not want to fully destroy on unmount
-    // dependending on app needs, but here we can at least clean up listeners
-    // this._map?.remove()
+    console.log('[MapboxAdapter] Destroying map instance and clearing markers')
+    this.markers.forEach(m => m.remove())
+    this.markers.clear()
+    this._map?.remove()
+    this._map = null
+    this.eventQueue = []
   }
 
   getZoom() {
     return this._map?.getZoom() ?? 0
+  }
+
+  getMarkersInfo() {
+    const list: Array<{ id: string, lng: number, lat: number }> = []
+    this.markers.forEach((m, id) => {
+      const ll = m.getLngLat()
+      list.push({ id, lng: ll.lng, lat: ll.lat })
+    })
+    return list
   }
 
   getCenter(): LngLat {

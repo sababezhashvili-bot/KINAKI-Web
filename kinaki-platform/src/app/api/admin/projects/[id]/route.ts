@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
+import { revalidatePath } from 'next/cache'
 
 export async function GET(
   req: NextRequest,
@@ -48,15 +49,50 @@ export async function PATCH(
   const { id } = await params
   const body = await req.json()
   
+  const lat = body.lat !== undefined && body.lat !== null ? parseFloat(body.lat.toString()) : null
+  const lng = body.lng !== undefined && body.lng !== null ? parseFloat(body.lng.toString()) : null
+
+  if (lat !== null && isNaN(lat)) return NextResponse.json({ error: "Latitude must be a valid number" }, { status: 400 })
+  if (lng !== null && isNaN(lng)) return NextResponse.json({ error: "Longitude must be a valid number" }, { status: 400 })
+
+  console.log(`[ADMIN_PROJECTS_PATCH] Editing project ${id}. Data:`, { lat, lng, status: body.status })
+
   try {
     const project = await prisma.project.update({
       where: { id },
       data: {
-        ...body,
-        // Ensure numbers are numbers
+        title: body.title,
+        slug: body.slug,
+        categoryId: body.categoryId,
+        shortDesc: body.shortDesc,
+        fullDesc: body.fullDesc,
+        country: body.country,
+        city: body.city,
+        coverImage: body.coverImage,
         year: body.year ? parseInt(body.year.toString()) : undefined,
+        status: body.status,
+        featured: body.featured,
+        latitude: lat,
+        longitude: lng,
+        // Sync Pin location
+        pin: lat !== null && lng !== null ? {
+          upsert: {
+            create: {
+              lat,
+              lng,
+              visible: true
+            },
+            update: {
+              lat,
+              lng,
+            }
+          }
+        } : undefined
       }
     })
+    console.log('[ADMIN_PROJECTS_PATCH] Saved project:', project)
+    revalidatePath('/')
+    revalidatePath('/admin/dashboard')
     return NextResponse.json(project)
   } catch (error) {
     console.error(error)

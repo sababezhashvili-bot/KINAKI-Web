@@ -20,7 +20,7 @@ const KinakiMap = dynamic(() => import('@/components/map/KinakiMap'), {
   ),
 })
 
-interface Project {
+interface MapObject {
   id: string
   slug: string
   title: string
@@ -33,13 +33,25 @@ interface Project {
   year: number
   lat: number
   lng: number
+  type: 'project' | 'pin'
+  hasPin?: boolean
 }
 
-export function HomeMapClient({ projects }: { projects: Project[] }) {
+export function HomeMapClient({ projects }: { projects: MapObject[] }) {
+  console.log('[HomeMapClient] RENDER. Projects prop length:', projects?.length)
+  if (projects?.length > 0) {
+    console.log('[HomeMapClient] First project sample:', { 
+      title: projects[0].title, 
+      lat: projects[0].lat, 
+      lng: projects[0].lng, 
+      cat: projects[0].categorySlug 
+    })
+  }
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const [adapter, setAdapter] = useState<MapAdapter | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<MapObject | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const markersAdded = useRef(false)
 
@@ -65,7 +77,7 @@ export function HomeMapClient({ projects }: { projects: Project[] }) {
   }, [])
 
   const handleMarkerClick = useCallback(
-    (project: Project) => {
+    (project: MapObject) => {
       setSelectedProject(project)
       router.replace(`/?project=${project.slug}`, { scroll: false })
       adapter?.flyTo({ lat: project.lat, lng: project.lng }, 10, {
@@ -81,41 +93,61 @@ export function HomeMapClient({ projects }: { projects: Project[] }) {
     router.replace('/', { scroll: false })
   }, [router])
 
-  // Render markers when adapter and projects are ready
   useEffect(() => {
-    if (!adapter || projects.length === 0) return
+    if (!adapter || projects.length === 0) {
+      console.log('[HomeMapClient] Waiting for adapter or projects...', { hasAdapter: !!adapter, count: projects.length })
+      return
+    }
 
     const renderMarkers = () => {
-      if (markersAdded.current) return
+      console.log('[HomeMapClient] Rendering markers. Count:', projects.length)
       
-      console.log('[HomeMapClient] Actually rendering markers now...')
-      projects.forEach(project => {
-        // Ensure we have coordinates before adding marker
-        const lat = project.lat || 42.32
-        const lng = project.lng || 43.35
+      projects.forEach(item => {
+        const isProject = item.type === 'project'
+        const lat = Number(item.lat)
+        const lng = Number(item.lng)
         
-        adapter.addMarker(project.id, { lat, lng }, {
-          className: 'project-marker',
-          size: 20,
-          color: '#000',
-          onClick: () => handleMarkerClick(project)
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error(`[HomeMapClient] Invalid coords for ${item.title}:`, { lat, lng })
+          return
+        }
+
+        console.log(`[HomeMapClient] Adding marker for ${item.title} at ${lat}, ${lng}`)
+        adapter.addMarker(item.id, { lat, lng }, {
+          className: isProject ? 'project-marker' : 'pin-marker',
+          size: isProject ? 24 : 14,
+          color: '#1c1917',
+          onClick: () => {
+            if (isProject) {
+              handleMarkerClick(item)
+            }
+          }
         })
       })
-      markersAdded.current = true
     }
+
+    const interval = setInterval(() => {
+      if (adapter && adapter.isReady()) {
+        const info = adapter.getMarkersInfo()
+        if (info.length === 0 && projects.length > 0) {
+          console.log('[HomeMapClient] Active marker count is 0. Retrying...')
+          renderMarkers()
+        }
+      }
+    }, 2000)
 
     if (adapter.isStyleLoaded()) {
       renderMarkers()
     } else {
-      adapter.on('load', renderMarkers)
+      console.log('[HomeMapClient] Waiting for style load before markers...')
       adapter.on('style.load', renderMarkers)
     }
 
     return () => {
+      clearInterval(interval)
+      console.log('[HomeMapClient] Cleaning up markers...')
       projects.forEach(p => adapter.removeMarker(p.id))
-      adapter.off('load', renderMarkers)
       adapter.off('style.load', renderMarkers)
-      markersAdded.current = false
     }
   }, [adapter, projects, handleMarkerClick])
 
@@ -131,6 +163,11 @@ export function HomeMapClient({ projects }: { projects: Project[] }) {
             furniture: projects.filter(p => p.categorySlug === 'furniture-design').length,
           }}
         />
+        {/* console.log('[HomeMapClient] Counts:', {
+          arch: projects.filter(p => p.categorySlug === 'architecture').length,
+          int: projects.filter(p => p.categorySlug === 'interior-design').length,
+          furn: projects.filter(p => p.categorySlug === 'furniture-design').length,
+        }) */}
         
         <div className="absolute top-32 left-6 z-50">
           <EditControl 

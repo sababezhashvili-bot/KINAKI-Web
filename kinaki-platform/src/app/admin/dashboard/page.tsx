@@ -2,6 +2,9 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { Plus, Folder, MapPin, Image as ImageIcon, Settings, FileText } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdminDashboard() {
   const [projectCount, pinCount, mediaCount, recentProjects] = await Promise.all([
     prisma.project.count(),
@@ -29,18 +32,15 @@ export default async function AdminDashboard() {
 
   return (
     <div className="p-12 max-w-7xl mx-auto space-y-16">
-      <header className="flex justify-between items-start pt-4">
-        <div className="space-y-1">
-          <h1 className="text-5xl font-extralight text-stone-900 tracking-tight">Studio Overview</h1>
-          <p className="text-stone-400 text-[12px] uppercase tracking-[0.3em] font-light">KINAKI Architectural Visibility Platform</p>
+      <header className="flex flex-col gap-6">
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <h1 className="text-5xl font-extralight text-stone-900 tracking-tight">Studio Overview</h1>
+            <p className="text-stone-400 text-[12px] uppercase tracking-[0.3em] font-light">KINAKI Architectural Visibility Platform</p>
+          </div>
         </div>
-        <Link 
-          href="/admin/projects/new"
-          className="bg-stone-900 text-white px-8 py-4 text-[11px] uppercase tracking-[0.25em] hover:bg-black transition-all flex items-center gap-3 shadow-sm hover:shadow-md"
-        >
-          <Plus size={16} /> New Project
-        </Link>
       </header>
+
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-3 gap-10">

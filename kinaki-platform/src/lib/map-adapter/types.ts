@@ -36,6 +36,7 @@ export interface MapAdapter {
   setPaintProperty(layerId: string, name: string, value: unknown): void
   setFilter(layerId: string, filter: unknown[]): void
   setTerrain(enabled: boolean): void
+  setPitch(pitch: number): void
   setWaterHighlight(enabled: boolean): void
   on(event: string, handler: (e?: unknown) => void): void
   off(event: string, handler: (e?: unknown) => void): void
@@ -44,6 +45,8 @@ export interface MapAdapter {
   getZoom(): number
   getCenter(): LngLat
   isStyleLoaded(): boolean
+  isReady(): boolean
+  getMarkersInfo(): Array<{ id: string, lng: number, lat: number }>
 }
 
 export type MapProvider = 'mapbox' | 'maplibre'

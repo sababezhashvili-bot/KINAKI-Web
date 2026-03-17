@@ -34,6 +34,8 @@ model Project {
   updatedAt       DateTime  @updatedAt
   media           Media[]
   pin             Pin?
+  latitude        Float?
+  longitude       Float?
   category        Category  @relation(fields: [categoryId], references: [id])
 }
 
