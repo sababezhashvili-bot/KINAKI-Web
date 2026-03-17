@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "echo 'Running DB Push...' && npx prisma db push --accept-data-loss && echo 'DB Push Done, starting build...' && next build",
+    "build": "npx prisma db push --accept-data-loss && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
@@ -19,7 +19,7 @@
     "framer-motion": "^11.2.10",
     "lucide-react": "^0.577.0",
     "mapbox-gl": "^3.4.0",
-    "next": "15.1.7",
+    "next": "15.2.1",
     "next-auth": "^4.24.11",
     "nodemailer": "^7.0.13",
     "react": "19.0.0",
@@ -41,7 +41,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.1.7",
+    "eslint-config-next": "15.2.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -12,39 +12,50 @@ interface Props {
 }
 
 async function getProject(slug: string) {
-  return prisma.project.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      categoryId: true,
-      shortDesc: true,
-      fullDesc: true,
-      country: true,
-      city: true,
-      year: true,
-      client: true,
-      area: true,
-      status: true,
-      coverImage: true,
-      metaTitle: true,
-      metaDescription: true,
-      ogImage: true,
-      updatedAt: true,
-      category: { select: { name: true, slug: true } },
-      media: { 
-        select: { url: true, fileType: true, sortOrder: true },
-        orderBy: { sortOrder: 'asc' }
-      }
-    },
-  })
+  try {
+    return await prisma.project.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        categoryId: true,
+        shortDesc: true,
+        fullDesc: true,
+        country: true,
+        city: true,
+        year: true,
+        client: true,
+        area: true,
+        status: true,
+        coverImage: true,
+        metaTitle: true,
+        metaDescription: true,
+        ogImage: true,
+        updatedAt: true,
+        category: { select: { name: true, slug: true } },
+        media: { 
+          select: { url: true, fileType: true, sortOrder: true },
+          orderBy: { sortOrder: 'asc' }
+        }
+      },
+    })
+  } catch (error) {
+    console.error('getProject error:', error)
+    return null
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const project = await getProject(slug)
-  if (!project) return {}
+  let project: any = null
+  try {
+    project = await getProject(slug)
+  } catch (error) {
+    console.error('generateMetadata error:', error)
+  }
+  
+  if (!project) return { title: 'Project' }
   return {
     title: project.metaTitle || project.title,
     description: project.metaDescription || project.shortDesc,
@@ -62,10 +73,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug, category: categorySlug } = await params
-  const project: any = await getProject(slug)
+  let project: any = null
+  try {
+    project = await getProject(slug)
+  } catch (error) {
+    console.error('ProjectDetailPage fetch error:', error)
+  }
 
   if (!project || project.status !== 'published') notFound() // Fixed status check
-  if (project.category.slug !== categorySlug) notFound()
+  if (project.category?.slug !== categorySlug) notFound()
 
   // In the new schema, we have a media table. 
   // Let's fallback to project.gallery (from old schema) if media is empty, for migration safety.
@@ -92,8 +108,8 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/40" />
         <div className="absolute bottom-12 left-8 md:left-16 text-white w-full pr-32">
           <p className="text-[10px] uppercase tracking-[0.3em] opacity-70 mb-2">
-            <Link href={`/projects/${project.category.slug}`} className="hover:opacity-100 transition-opacity">
-              {project.category.name}
+            <Link href={`/projects/${project.category?.slug}`} className="hover:opacity-100 transition-opacity">
+              {project.category?.name || 'Category'}
             </Link>
           </p>
           <EditControl 

@@ -9,8 +9,16 @@ export const metadata: Metadata = {
 }
 
 export default async function ContactPage() {
-  const page = await prisma.page.findUnique({ where: { key: 'contact' } })
-  if (!page) notFound()
+  let page: any = null
+  try {
+    page = await prisma.page.findUnique({ where: { key: 'contact' } })
+  } catch (error) {
+    console.error('ContactPage fetch error:', error)
+  }
+
+  if (!page) {
+    return <ContactPageClient page={{ title: 'Contact', content: '{}' } as any} content={{}} />
+  }
 
   let content: Record<string, any> = {}
   try { content = JSON.parse(page.content) } catch {}
