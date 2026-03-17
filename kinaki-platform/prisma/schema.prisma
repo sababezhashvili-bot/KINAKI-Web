@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  categoryId      String
+  shortDesc       String
+  fullDesc        String
+  country         String
+  region          String?
+  city            String
+  locationName    String?
+  coverImage      String
+  services        String    @default("[]")
+  year            Int
+  client          String?
+  area            String?
+  status          String    @default("draft")
+  featured        Boolean   @default(false)
+  sortOrder       Int?
+  publishedAt     DateTime?
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  media           Media[]
+  pin             Pin?
+  category        Category  @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  order    Int?
+  projects Project[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String
+  content   String
+  updatedAt DateTime @updatedAt
+  metaDesc  String?
+  metaTitle String?
+}
+
+model GlobalSettings {
+  id            String  @id @default("settings")
+  siteName      String  @default("KINAKI")
+  logoUrl       String?
+  mapLat        Float   @default(42.32)
+  mapLng        Float   @default(43.35)
+  mapZoom       Float   @default(5.8)
+  mapStyle      String  @default("mapbox://styles/mapbox/light-v11")
+  email         String?
+  phone         String?
+  address       String?
+  socialLinks   String  @default("{}")
+  defaultLocale String  @default("en")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  fileName  String
+  fileType  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  duration  Float?
+  altText   String?
+  caption   String?
+  sortOrder Int      @default(0)
+  projectId String?
+  createdAt DateTime @default(now())
+  project   Project? @relation(fields: [projectId], references: [id])
+}
+
+model Pin {
+  id        String   @id @default(cuid())
+  title     String?
+  lat       Float
+  lng       Float
+  styleType String   @default("dot")
+  visible   Boolean  @default(true)
+  projectId String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}

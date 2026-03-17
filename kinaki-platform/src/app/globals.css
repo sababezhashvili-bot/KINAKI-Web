@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* ─── FONT ─────────────────────────────────────────────── */
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── RESET / BASE ──────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-inter);
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  background: #fafaf9;
+  color: #1c1917;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── GLASSMORPHISM ───────────────────────────────────── */
+.glass {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.glass-dark {
+  background: #1c1917;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ─── NAV LINKS ─────────────────────────────────────────── */
+.nav-link {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #57534e;
+  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #1c1917;
+  transition: width 0.3s ease;
+}
+.nav-link:hover {
+  color: #1c1917;
+}
+.nav-link:hover::after,
+.nav-link--active::after {
+  width: 100%;
+}
+.nav-link--active {
+  color: #1c1917;
+}
+
+/* ─── PROJECT MARKERS ───────────────────────────────────── */
+.kinaki-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1c1917;
+  border: 2px solid #fff;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.1);
+}
+.kinaki-marker:hover {
+  transform: scale(1.8);
+  box-shadow: 0 0 0 3px rgba(28,25,23,0.2), 0 8px 15px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+.kinaki-marker--arch { background: #1c1917; }
+.kinaki-marker--int { background: #78716c; }
+.kinaki-marker--furn { background: #a8a29e; }
+
+/* ─── MAPBOX OVERRIDES ──────────────────────────────────── */
+.mapboxgl-ctrl,
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-compass,
+.mapboxgl-ctrl-group,
+.mapboxgl-ctrl-top-left,
+.mapboxgl-ctrl-top-right,
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right,
+[class*="mapboxgl-ctrl"],
+[class*="maplibregl-ctrl"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Aggressive Next.js dev indicator hider */
+.preact-border-shadow-host,
+[aria-label="Next.js development indicator"],
+#nextjs-dev-overlay,
+.nextjs-toast-errors-parent,
+[data-nextjs-toast-errors-parent],
+[data-nextjs-dialog-overlay],
+div[style*="z-index: 9999"],
+div[style*="z-index: 10000"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ─── HAMBURGER ─────────────────────────────────────────── */
+.hamburger-icon {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: #57534e;
+  position: relative;
+  transition: background 0.2s;
+}
+.hamburger-icon::before,
+.hamburger-icon::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #57534e;
+  transition: all 0.25s ease;
+  left: 0;
+}
+.hamburger-icon::before { top: -6px; }
+.hamburger-icon::after  { top:  6px; }
+.hamburger-icon--open { background: transparent; }
+.hamburger-icon--open::before {
+  top: 0; transform: rotate(45deg);
+}
+.hamburger-icon--open::after {
+  top: 0; transform: rotate(-45deg);
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+
+/* ─── PAGE TRANSITIONS ──────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* ─── SKELETON LOADING ──────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f5f5f4 25%, #e7e5e4 50%, #f5f5f4 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
