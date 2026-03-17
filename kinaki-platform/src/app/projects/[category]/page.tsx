@@ -44,7 +44,12 @@ export default async function CategoryPage({ params }: Props) {
   const category = await getCategory(slug)
   if (!category) notFound()
 
-  const projects = await getCategoryProjects(category.id)
+  let projects: any[] = []
+  try {
+    projects = await getCategoryProjects(category.id)
+  } catch (error) {
+    console.error('CategoryPage projects fetch error:', error)
+  }
 
   return (
     <div 

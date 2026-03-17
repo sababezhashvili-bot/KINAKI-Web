@@ -45,6 +45,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   return [...staticPages, ...categoryPages, ...projectPages]
-
-  return [...staticPages, ...categoryPages, ...projectPages]
 }
