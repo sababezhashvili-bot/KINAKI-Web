@@ -28,7 +28,6 @@ async function getProject(slug: string) {
       area: true,
       status: true,
       coverImage: true,
-      gallery: true, // legacy field
       metaTitle: true,
       metaDescription: true,
       ogImage: true,
