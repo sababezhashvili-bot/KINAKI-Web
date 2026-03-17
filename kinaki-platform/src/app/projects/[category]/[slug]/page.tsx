@@ -115,7 +115,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           <EditControl 
             type="edit" 
             label="Edit Hero & Title" 
-            onClick={() => window.location.href = `/admin/projects/${project.id}`}
+            href={`/admin/projects/${project.id}`}
           >
             <h1 className="text-4xl md:text-6xl font-light">{project.title}</h1>
           </EditControl>
@@ -130,7 +130,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <EditControl 
               type="edit" 
               label="Edit Description" 
-              onClick={() => window.location.href = `/admin/projects/${project.id}`}
+              href={`/admin/projects/${project.id}`}
             >
               <p className="text-lg font-light text-stone-700 leading-relaxed mb-8">
                 {project.shortDesc}
@@ -146,7 +146,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <EditControl 
               type="edit" 
               label="Edit Metadata" 
-              onClick={() => window.location.href = `/admin/projects/${project.id}`}
+              href={`/admin/projects/${project.id}`}
             >
               <div className="space-y-7">
                 {[
@@ -178,7 +178,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             <EditControl 
               type="edit" 
               label="Manage Gallery" 
-              onClick={() => window.location.href = `/admin/projects/${project.id}`}
+              href={`/admin/projects/${project.id}`}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {gallery.map((src: string, i: number) => (

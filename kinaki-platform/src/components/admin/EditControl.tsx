@@ -18,11 +18,13 @@ interface EditControlProps {
   
   // Custom action (optional)
   onClick?: () => void
+  href?: string
 }
 
 export function EditControl({ 
   type, 
   onClick, 
+  href,
   label, 
   className, 
   children,
@@ -30,7 +32,7 @@ export function EditControl({
   initialValue = '',
   editorTitle = 'Edit Content',
   editorType = 'text'
-}: EditControlProps) {
+}: EditControlProps & { href?: string }) {
   const { isAdmin } = useAdmin()
   const [isEditorOpen, setIsEditorOpen] = useState(false)
 
@@ -42,6 +44,8 @@ export function EditControl({
     
     if (onSave) {
       setIsEditorOpen(true)
+    } else if (href) {
+      window.location.href = href
     } else if (onClick) {
       onClick()
     }

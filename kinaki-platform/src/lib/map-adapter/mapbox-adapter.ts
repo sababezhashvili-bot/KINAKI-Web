@@ -28,7 +28,9 @@ class MapboxAdapterClass implements MapAdapter {
     // Lazy-load mapbox-gl only on client
     const module = await import('mapbox-gl')
     mapboxgl = (module as any).default || module
-    ;(mapboxgl as any).accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+    console.log('[MapboxAdapter] Using token:', token ? `${token.substring(0, 10)}...` : 'MISSING')
+    ;(mapboxgl as any).accessToken = token
 
     console.log('[MapboxAdapter] Initializing new map instance')
     if (!mapboxgl) throw new Error('[MapboxAdapter] mapbox-gl failed to load')
