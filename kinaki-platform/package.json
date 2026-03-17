@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@prisma/engines": "^7.5.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.10",
