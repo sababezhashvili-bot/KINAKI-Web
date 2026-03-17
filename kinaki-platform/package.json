@@ -10,7 +10,7 @@
     "db:push": "prisma db push",
     "db:seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -19,11 +19,11 @@
     "framer-motion": "^11.2.10",
     "lucide-react": "^0.577.0",
     "mapbox-gl": "^3.4.0",
-    "next": "16.1.6",
-    "next-auth": "^4.24.7",
-    "nodemailer": "^6.9.14",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "next": "15.1.7",
+    "next-auth": "^4.24.11",
+    "nodemailer": "^8.0.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-dropzone": "^14.2.3",
     "sharp": "^0.33.4",
     "slugify": "^1.6.6",
@@ -40,7 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "15.1.7",
     "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
