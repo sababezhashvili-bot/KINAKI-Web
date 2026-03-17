@@ -4,18 +4,25 @@ import { prisma } from '@/lib/db'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
 
-  const projects = await prisma.project.findMany({
-    where: { status: 'published' },
-    select: {
-      slug: true,
-      category: { select: { slug: true } },
-      updatedAt: true,
-    },
-  })
+  let projects: any[] = []
+  let categories: any[] = []
 
-  const categories = await prisma.category.findMany({
-    select: { slug: true },
-  })
+  try {
+    projects = await prisma.project.findMany({
+      where: { status: 'published' },
+      select: {
+        slug: true,
+        category: { select: { slug: true } },
+        updatedAt: true,
+      },
+    })
+
+    categories = await prisma.category.findMany({
+      select: { slug: true },
+    })
+  } catch (error) {
+    console.error('Sitemap generation: Could not fetch data from database', error)
+  }
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
@@ -30,12 +37,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }))
 
-  const projectPages: MetadataRoute.Sitemap = projects.map(p => ({
+  const projectPages: MetadataRoute.Sitemap = projects.map((p: any) => ({
     url: `${baseUrl}/projects/${p.category.slug}/${p.slug}`,
     lastModified: p.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.8,
   }))
+
+  return [...staticPages, ...categoryPages, ...projectPages]
 
   return [...staticPages, ...categoryPages, ...projectPages]
 }
