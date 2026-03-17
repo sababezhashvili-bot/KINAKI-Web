@@ -19,7 +19,7 @@
     "framer-motion": "^11.2.10",
     "lucide-react": "^0.577.0",
     "mapbox-gl": "^3.4.0",
-    "next": "latest",
+    "next": "15.2.2",
     "next-auth": "^4.24.11",
     "nodemailer": "^7.0.13",
     "react": "19.0.0",
