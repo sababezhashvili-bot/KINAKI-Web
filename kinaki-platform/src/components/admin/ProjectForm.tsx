@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Trash2 } from 'lucide-react'
 import MediaManager from './MediaManager'
 import PinManager from './PinManager'
 
@@ -91,7 +92,7 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 max-w-4xl pb-32">
+    <form onSubmit={handleSubmit} className="space-y-12 max-w-4xl pb-48 relative">
       {/* Header Info */}
       <section className="bg-white border border-stone-100 p-10 space-y-8">
         <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-400">Basic Information</h2>
@@ -150,6 +151,60 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
             </select>
           </div>
         </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-stone-500">Area (m²)</label>
+            <input
+              name="area"
+              value={formData.area}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+              placeholder="e.g. 250"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-stone-500">Year</label>
+            <input
+              type="number"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-stone-500">Client</label>
+            <input
+              name="client"
+              value={formData.client}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+              placeholder="e.g. Private Investor"
+            />
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-stone-500">City</label>
+            <input
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase tracking-widest text-stone-500">Country</label>
+            <input
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+            />
+          </div>
+        </div>
       </section>
 
       {/* Location & Pin Section */}
@@ -200,67 +255,28 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
         />
       </section>
 
-      {/* Metadata Section */}
-      <section className="bg-white border border-stone-100 p-10 space-y-8">
-        <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-400">Metadata & Specs</h2>
-        
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-stone-500">Year</label>
-            <input
-              type="number"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-stone-500">City</label>
-            <input
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-stone-500">Country</label>
-            <input
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
-            />
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-stone-500">Client</label>
-            <input
-              name="client"
-              value={formData.client}
-              onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
-            />
+      {/* Sticky Save Bar - Now relative to the form content to avoid sidebar overlap */}
+      <div className="sticky bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-100 p-6 flex justify-between items-center z-[50] mt-12 -mx-10 px-10 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-8">
+          <div className="text-[10px] uppercase tracking-widest text-stone-400">
+            Last updated: {initialData?.updatedAt ? new Date(initialData.updatedAt).toLocaleString() : 'Never'}
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-stone-500">Area (e.g. 200 sqm)</label>
-            <input
-              name="area"
-              value={formData.area}
-              onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Sticky Save Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-stone-100 p-6 flex justify-between items-center z-[1000]">
-        <div className="text-[10px] uppercase tracking-widest text-stone-400">
-          Last updated: {initialData?.updatedAt ? new Date(initialData.updatedAt).toLocaleString() : 'Never'}
+          {initialData?.id && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (confirm(`Delete project "${formData.title}"? This action cannot be undone.`)) {
+                  const res = await fetch(`/api/admin/projects/${initialData.id}`, { method: 'DELETE' })
+                  if (res.ok) router.push('/admin/projects')
+                }
+              }}
+              className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-red-500 hover:text-red-700 font-bold transition-colors border border-red-100 px-4 py-2 rounded-sm"
+            >
+              <Trash2 size={14} />
+              Delete Project
+            </button>
+          )}
         </div>
         <div className="flex gap-4">
           <button

@@ -33,15 +33,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) redirect('/admin/login')
 
   return (
-    <div className="flex min-h-screen bg-stone-50" style={{ '--navbar-height': '44px' } as any}>
+    <div className="flex min-h-screen bg-stone-50" style={{ '--navbar-height': '36px' } as any}>
       {/* Sidebar - Shifted down by navbar height */}
       <aside className="w-64 shrink-0 bg-white border-r border-stone-100 flex flex-col sticky top-[var(--navbar-height)] h-[calc(100vh-var(--navbar-height))] z-20">
-        <div className="px-8 py-10">
-          <Link href="/" className="text-[14px] tracking-[0.4em] uppercase font-light text-stone-900 block mb-1">
-            KINAKI
-          </Link>
-          <p className="text-[9px] uppercase tracking-[0.2em] text-stone-400 font-medium">Management Suite</p>
-        </div>
+        <div className="pt-8" />
 
         <nav className="flex-1 px-4 space-y-1">
           {NAV_ITEMS.map(item => (
@@ -73,8 +68,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </div>
 
       {/* Main content - Start after navbar height with extra breathing room */}
-      <main className="flex-1 min-w-0 pt-[calc(var(--navbar-height)+2rem)]">
-        <div className="px-6 pb-20">
+      <main 
+        className="flex-1 min-w-0"
+        style={{ paddingTop: 'calc(var(--navbar-height) + 6rem)' }}
+      >
+        <div className="px-10 pb-24 max-w-[1600px] mx-auto">
           {children}
         </div>
       </main>

@@ -31,14 +31,15 @@ export default async function AdminDashboard() {
   ]
 
   return (
-    <div className="p-12 max-w-7xl mx-auto space-y-16">
-      <header className="flex flex-col gap-6">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h1 className="text-5xl font-extralight text-stone-900 tracking-tight">Studio Overview</h1>
-            <p className="text-stone-400 text-[12px] uppercase tracking-[0.3em] font-light">KINAKI Architectural Visibility Platform</p>
+    <div className="space-y-12">
+      <header className="space-y-4">
+        <div className="flex justify-between items-end">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-extralight text-stone-900 tracking-tight leading-none">Studio Overview</h1>
+            <p className="text-stone-400 text-[10px] uppercase tracking-[0.4em] font-light">KINAKI Architectural Visibility Plattform</p>
           </div>
         </div>
+        <div className="h-px bg-stone-100 w-full" />
       </header>
 
 

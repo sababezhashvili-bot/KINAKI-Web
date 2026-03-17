@@ -42,7 +42,7 @@ export default function Navbar() {
   return (
     <>
       <nav 
-        className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-stone-100 flex items-center justify-between h-11 transition-all duration-300 !px-8"
+        className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-stone-100 flex items-center justify-between h-9 transition-all duration-300 !px-8"
         style={{ backgroundColor: '#ffffff', opacity: 1 }}
       >
         {/* Logo */}
@@ -123,7 +123,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-4">
               <Link
                 href="/admin/dashboard"
-                className="text-[11px] uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors border border-stone-200 hover:border-stone-900 px-5 py-0.5 bg-white"
+                className="text-[11px] uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
               >
                 Dashboard
               </Link>
@@ -137,7 +137,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => setLoginModalOpen(true)}
-              className="hidden md:block text-[11px] uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors border border-stone-200 hover:border-stone-900 px-5 py-0.5 bg-white"
+              className="hidden md:block text-[11px] uppercase tracking-[0.2em] text-stone-500 hover:text-stone-900 transition-colors"
             >
               ENTER
             </button>
