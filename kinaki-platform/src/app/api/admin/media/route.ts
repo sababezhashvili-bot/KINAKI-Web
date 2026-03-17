@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { writeFile, mkdir, unlink } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { bucket } from '@/lib/firebaseAdmin'
+import { randomUUID } from 'crypto'
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
@@ -17,19 +16,23 @@ export async function POST(req: Request) {
     
     if (!files.length) return new NextResponse('No files uploaded', { status: 400 })
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-    if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-
     const savedMedia = []
 
     for (const file of files) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
-      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`
-      const path = join(uploadDir, fileName)
-      await writeFile(path, buffer)
+      
+      const fileExtension = file.name.split('.').pop()
+      const fileName = `uploads/${randomUUID()}.${fileExtension}`
+      const firebaseFile = bucket.file(fileName)
 
-      const url = `/uploads/${fileName}`
+      await firebaseFile.save(buffer, {
+        metadata: { contentType: file.type },
+        public: true
+      })
+
+      // Get public URL
+      const url = `https://storage.googleapis.com/${bucket.name}/${fileName}`
       
       // Basic type detection
       let fileType = 'image'
@@ -83,10 +86,15 @@ export async function DELETE(req: Request) {
     const media = await prisma.media.findUnique({ where: { id } })
     if (!media) return new NextResponse('Not found', { status: 404 })
 
-    // Delete file
-    const filePath = join(process.cwd(), 'public', media.url)
-    if (existsSync(filePath)) {
-      await unlink(filePath)
+    // Extract filename from URL to delete from Firebase
+    // URL pattern: https://storage.googleapis.com/[bucket-name]/uploads/[uuid].[ext]
+    const urlParts = media.url.split('/')
+    const fileName = `uploads/${urlParts[urlParts.length - 1]}`
+    
+    try {
+      await bucket.file(fileName).delete()
+    } catch (e) {
+      console.warn('File deletion from Firebase failed or file does not exist:', fileName)
     }
 
     await prisma.media.delete({ where: { id } })
