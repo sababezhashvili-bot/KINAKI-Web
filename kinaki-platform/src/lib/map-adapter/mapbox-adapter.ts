@@ -38,7 +38,7 @@ class MapboxAdapterClass implements MapAdapter {
     mapboxgl = (module as any).default || module
     
     // პირდაპირ ჩაწერილი ტოკენი (Hardcoded), რომ გამოირიცხოს Vercel-ის ცვლადების პრობლემა
-    const token = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2yoifQ.V6q1KO4tol7QefPr8PQFxQ'.trim()
+    const token = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2ypbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2y.cqn7fmCX7IuWYkWkVcEirw'.trim()
 
     if (typeof window !== 'undefined') {
       ;(window as any)._kinakiMapTokenStatus = token ? 'PRESENT' : 'MISSING'
