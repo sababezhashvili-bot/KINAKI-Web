@@ -37,23 +37,21 @@ class MapboxAdapterClass implements MapAdapter {
     const module = await import('mapbox-gl')
     mapboxgl = (module as any).default || module
     
-    // Check multiple possible env var names for the token
-    const rawToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 
-                     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 
-                     ''
-    
-    const token = rawToken.trim()
+    // პირდაპირ ჩაწერილი ტოკენი (Hardcoded), რომ გამოირიცხოს Vercel-ის ცვლადების პრობლემა
+    const token = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2yoifQ.V6q1KO4tol7QefPr8PQFxQ'.trim()
 
     if (typeof window !== 'undefined') {
       ;(window as any)._kinakiMapTokenStatus = token ? 'PRESENT' : 'MISSING'
       if (token) {
-        console.log(`[MapboxAdapter] Token found (starts with: ${token.substring(0, 8)}...)`)
+        console.log(`[MapboxAdapter] Token initialized (starts with: ${token.substring(0, 8)}...)`)
       }
     }
 
-    ;(mapboxgl as any).accessToken = token
-
-    if (!mapboxgl) throw new Error('[MapboxAdapter] mapbox-gl failed to load')
+    if (mapboxgl) {
+      (mapboxgl as any).accessToken = token
+    } else {
+      throw new Error('[MapboxAdapter] mapbox-gl failed to load')
+    }
     
     this._map = new mapboxgl.Map({
       container: options.container,
@@ -131,8 +129,6 @@ class MapboxAdapterClass implements MapAdapter {
     el.style.border = '3px solid white'
     el.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)'
     el.style.zIndex = '1000'
-    
-    // No hover transform to prevent jumping
     
     if (opts.onClick) {
       el.addEventListener('click', (e) => {
