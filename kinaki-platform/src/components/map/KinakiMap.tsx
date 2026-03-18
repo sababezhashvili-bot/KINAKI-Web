@@ -95,6 +95,11 @@ export default function KinakiMap({
 
     adapter.on('error', (e: any) => {
       console.error('[KinakiMap] Internal map error:', e)
+      if (e?.error?.status === 401) {
+        setMapError('Mapbox Token Rejected (401). Check if it is valid or restricted.')
+      } else {
+        setMapError(e?.error?.message || 'Internal map error')
+      }
     })
 
     const handleResize = () => adapter.resize()

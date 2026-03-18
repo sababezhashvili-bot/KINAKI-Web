@@ -38,12 +38,17 @@ class MapboxAdapterClass implements MapAdapter {
     mapboxgl = (module as any).default || module
     
     // Check multiple possible env var names for the token
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 
-                  process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 
-                  ''
+    const rawToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 
+                     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 
+                     ''
     
+    const token = rawToken.trim()
+
     if (typeof window !== 'undefined') {
       ;(window as any)._kinakiMapTokenStatus = token ? 'PRESENT' : 'MISSING'
+      if (token) {
+        console.log(`[MapboxAdapter] Token found (starts with: ${token.substring(0, 8)}...)`)
+      }
     }
 
     ;(mapboxgl as any).accessToken = token
