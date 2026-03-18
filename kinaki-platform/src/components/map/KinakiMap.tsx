@@ -12,7 +12,7 @@ interface KinakiMapProps {
   children?: React.ReactNode
 }
 
-const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/mapbox/light-v11'
+const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/sabuka629/cmmsflpto006m01s9hgf7678u'
 
 const HIDDEN_LAYERS = [
   'poi-label',
