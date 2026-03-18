@@ -12,7 +12,9 @@ interface KinakiMapProps {
   children?: React.ReactNode
 }
 
+// Mapbox-ის პარამეტრები
 const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/sabuka629/cmmsflpto006m01s9hgf7678u'
+const MAPBOX_TOKEN = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2yoifQ.V6q1KO4tol7QefPr8PQFxQ'
 
 const HIDDEN_LAYERS = [
   'poi-label',
@@ -52,12 +54,14 @@ export default function KinakiMap({
     const adapter = adapterRef.current
 
     try {
-      console.log('[KinakiMap] Initializing adapter...')
+      console.log('[KinakiMap] Initializing adapter with direct token...')
+      // აქ დავამატეთ accessToken-ის პირდაპირი გადაცემა
       adapter.init({
         container: containerRef.current,
         center: defaultCenter,
         zoom: defaultZoom,
         style: KINAKI_MONOCHROME_STYLE,
+        accessToken: MAPBOX_TOKEN, 
       })
     } catch (err: any) {
       console.error('[KinakiMap] Critical init error:', err)
@@ -69,13 +73,12 @@ export default function KinakiMap({
       if (typeof window !== 'undefined') {
         ;(window as any).kinakiAdapter = adapter
       }
-      updateZoom() // Initial sync
+      updateZoom()
       hideCommercialLayers()
       onMapReady?.(adapter)
     }
 
     if (adapter.isReady()) {
-      console.log('[KinakiMap] Adapter already ready, calling handleReady immediately')
       handleReady()
     } else {
       adapter.on('load', handleReady)
@@ -83,7 +86,6 @@ export default function KinakiMap({
 
     const updateZoom = () => {
       const z = adapter.getZoom()
-      // console.log('[KinakiMap] Dynamic update:', z)
       setCurrentZoom(z)
     }
 
@@ -95,8 +97,8 @@ export default function KinakiMap({
 
     adapter.on('error', (e: any) => {
       console.error('[KinakiMap] Internal map error:', e)
-      if (e?.error?.status === 401) {
-        setMapError('Mapbox Token Rejected (401). Check if it is valid or restricted.')
+      if (e?.error?.status === 401 || e?.error?.status === 403) {
+        setMapError(`Mapbox Error (${e.error.status}). Check Token or Style restrictions.`);
       } else {
         setMapError(e?.error?.message || 'Internal map error')
       }
@@ -124,13 +126,12 @@ export default function KinakiMap({
         style={{ background: '#f5f5f0' }}
       />
       
-      {/* Dynamic Map Scale */}
       <div className="absolute bottom-6 right-6 z-10 pointer-events-none">
         <MapScale zoom={currentZoom} />
       </div>
 
       {showError && (
-        <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-stone-100/90 backdrop-blur-sm p-8 text-center animate-in fade-in duration-500">
+        <div className="absolute inset-0 z-[9999] flex flex-col items-center justify-center bg-stone-100/90 backdrop-blur-sm p-8 text-center">
           <div className="text-stone-400 mb-4">
             <svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -141,14 +142,9 @@ export default function KinakiMap({
           </h3>
           <p className="text-[10px] text-stone-500 max-w-xs leading-relaxed uppercase tracking-wider">
             {tokenMissing 
-              ? 'Mapbox access token is not configured correctly on Vercel. Please check environment variables.' 
+              ? 'Mapbox access token is not configured correctly. Please check settings.' 
               : mapError || 'An unexpected error occurred while loading the map.'}
           </p>
-          {process.env.NODE_ENV === 'development' && mapError && (
-            <p className="mt-4 text-[9px] font-mono text-stone-400 bg-white p-2 border border-stone-100">
-              {mapError}
-            </p>
-          )}
         </div>
       )}
 
