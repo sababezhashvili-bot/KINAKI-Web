@@ -12,9 +12,7 @@ interface KinakiMapProps {
   children?: React.ReactNode
 }
 
-// Mapbox-ის პარამეტრები
-const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/mapbox/streets-v11'
-const MAPBOX_TOKEN = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2ypbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2y.cqn7fmCX7IuWYkWkVcEirw'
+const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/sabuka629/cmmsflpto006m01s9hgf7678u'
 
 const HIDDEN_LAYERS = [
   'poi-label',
@@ -61,7 +59,6 @@ export default function KinakiMap({
         center: defaultCenter,
         zoom: defaultZoom,
         style: KINAKI_MONOCHROME_STYLE,
-        accessToken: MAPBOX_TOKEN, 
       })
     } catch (err: any) {
       console.error('[KinakiMap] Critical init error:', err)

@@ -37,21 +37,23 @@ class MapboxAdapterClass implements MapAdapter {
     const module = await import('mapbox-gl')
     mapboxgl = (module as any).default || module
     
-    // პირდაპირ ჩაწერილი ტოკენი (Hardcoded), რომ გამოირიცხოს Vercel-ის ცვლადების პრობლემა
-    const token = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2ypbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2y.cqn7fmCX7IuWYkWkVcEirw'.trim()
+    // Check multiple possible env var names for the token
+    const rawToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 
+                     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || 
+                     ''
+    
+    const token = rawToken.trim()
 
     if (typeof window !== 'undefined') {
       ;(window as any)._kinakiMapTokenStatus = token ? 'PRESENT' : 'MISSING'
       if (token) {
-        console.log(`[MapboxAdapter] Token initialized (starts with: ${token.substring(0, 8)}...)`)
+        console.log(`[MapboxAdapter] Token found (starts with: ${token.substring(0, 8)}...)`)
       }
     }
 
-    if (mapboxgl) {
-      (mapboxgl as any).accessToken = token
-    } else {
-      throw new Error('[MapboxAdapter] mapbox-gl failed to load')
-    }
+    ;(mapboxgl as any).accessToken = token
+
+    if (!mapboxgl) throw new Error('[MapboxAdapter] mapbox-gl failed to load')
     
     this._map = new mapboxgl.Map({
       container: options.container,
