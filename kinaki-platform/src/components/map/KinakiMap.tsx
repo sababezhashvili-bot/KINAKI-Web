@@ -14,7 +14,7 @@ interface KinakiMapProps {
 
 // Mapbox-ის პარამეტრები
 const KINAKI_MONOCHROME_STYLE = 'mapbox://styles/mapbox/streets-v11'
-const MAPBOX_TOKEN = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2yoifQ.V6q1KO4tol7QefPr8PQFxQ'
+const MAPBOX_TOKEN = 'pk.eyJbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2ypbc1q5mlw63yd2u2cn0hs6jnzf2gljhr486u3dkgm2y.cqn7fmCX7IuWYkWkVcEirw'
 
 const HIDDEN_LAYERS = [
   'poi-label',
