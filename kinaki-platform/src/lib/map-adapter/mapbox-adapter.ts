@@ -165,28 +165,33 @@ class MapboxAdapterClass implements MapAdapter {
       if (visible) {
         if (!this._map.getLayer(realId)) {
           // Find available vector source (usually 'composite' or 'mapbox')
-          const sources = this._map.getStyle().sources
-          const sourceId = sources.composite ? 'composite' : (sources.mapbox ? 'mapbox' : null)
+          const hasComposite = !!this._map.getSource('composite')
+          const hasMapbox = !!this._map.getSource('mapbox')
+          const sourceId = hasComposite ? 'composite' : (hasMapbox ? 'mapbox' : null)
 
           if (!sourceId) {
-            console.warn('[MapboxAdapter] No compatible vector source found for 3D buildings')
+            console.warn('[MapboxAdapter] No compatible vector source found for 3D buildings. Skipping layer.')
             return
           }
 
-          this._map.addLayer({
-            'id': realId,
-            'source': sourceId,
-            'source-layer': 'building',
-            'filter': ['==', 'extrude', 'true'],
-            'type': 'fill-extrusion',
-            'minzoom': 15,
-            'paint': {
-              'fill-extrusion-color': '#e0e0e0',
-              'fill-extrusion-height': ['get', 'height'],
-              'fill-extrusion-base': ['get', 'min_height'],
-              'fill-extrusion-opacity': 0.8
-            }
-          })
+          try {
+            this._map.addLayer({
+              'id': realId,
+              'source': sourceId,
+              'source-layer': 'building',
+              'filter': ['==', 'extrude', 'true'],
+              'type': 'fill-extrusion',
+              'minzoom': 15,
+              'paint': {
+                'fill-extrusion-color': '#e0e0e0',
+                'fill-extrusion-height': ['get', 'height'],
+                'fill-extrusion-base': ['get', 'min_height'],
+                'fill-extrusion-opacity': 0.8
+              }
+            })
+          } catch (layerErr) {
+            console.error('[MapboxAdapter] Failed to add 3D buildings layer:', layerErr)
+          }
         } else {
           this._map.setLayoutProperty(realId, 'visibility', 'visible')
         }

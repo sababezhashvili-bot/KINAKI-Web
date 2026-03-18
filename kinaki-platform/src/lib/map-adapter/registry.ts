@@ -77,7 +77,7 @@ export const LAYER_REGISTRY: LayerConfig[] = [
     id: 'buildings3d',
     label: '3D Buildings',
     mapboxLayers: ['3d-buildings'],
-    defaultActive: true,
+    defaultActive: false,
     group: 'Options',
   },
 ]
