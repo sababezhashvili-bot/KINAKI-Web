@@ -164,9 +164,18 @@ class MapboxAdapterClass implements MapAdapter {
       const realId = '3d-buildings'
       if (visible) {
         if (!this._map.getLayer(realId)) {
+          // Find available vector source (usually 'composite' or 'mapbox')
+          const sources = this._map.getStyle().sources
+          const sourceId = sources.composite ? 'composite' : (sources.mapbox ? 'mapbox' : null)
+
+          if (!sourceId) {
+            console.warn('[MapboxAdapter] No compatible vector source found for 3D buildings')
+            return
+          }
+
           this._map.addLayer({
             'id': realId,
-            'source': 'composite',
+            'source': sourceId,
             'source-layer': 'building',
             'filter': ['==', 'extrude', 'true'],
             'type': 'fill-extrusion',
