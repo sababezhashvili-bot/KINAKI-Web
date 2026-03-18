@@ -93,12 +93,13 @@ export default function KinakiMap({
     adapter.on('rotateend', updateZoom)
 
     adapter.on('error', (e: any) => {
-      console.error('[KinakiMap] Internal map error:', e)
+      console.warn('[KinakiMap] Internal map error (logged but not blocking):', e)
+      
+      // ONLY show the blocking error overlay for mission-critical errors (Auth/401/403)
       if (e?.error?.status === 401 || e?.error?.status === 403) {
         setMapError(`Mapbox Error (${e.error.status}). Check Token or Style restrictions.`);
-      } else {
-        setMapError(e?.error?.message || 'Internal map error')
       }
+      // General "Source not found" or minor style errors will no longer block the UI
     })
 
     const handleResize = () => adapter.resize()
