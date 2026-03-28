@@ -15,6 +15,11 @@ export async function POST(req: Request) {
     const projectId = formData.get('projectId') as string
     
     if (!files.length) return new NextResponse('No files uploaded', { status: 400 })
+    
+    if (!bucket) {
+      console.error('[ADMIN_MEDIA_POST] Firebase bucket not initialized. Check your environment variables (FIREBASE_PROJECT_ID, etc.).')
+      return new NextResponse('Firebase Storage is not configured on the server.', { status: 500 })
+    }
 
     const savedMedia = []
 
@@ -81,6 +86,10 @@ export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id')
   if (!id) return new NextResponse('ID missing', { status: 400 })
+  
+  if (!bucket) {
+    return new NextResponse('Firebase Storage is not configured on the server.', { status: 500 })
+  }
 
   try {
     const media = await prisma.media.findUnique({ where: { id } })
