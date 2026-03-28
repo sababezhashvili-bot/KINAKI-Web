@@ -20,12 +20,8 @@ const NAV_ITEMS = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { label: 'Projects', href: '/admin/projects', icon: Folder },
   { label: 'Categories', href: '/admin/categories', icon: Tag },
-  { label: 'Pages', href: '/admin/pages', icon: FileText },
   { label: 'Media', href: '/admin/media', icon: ImageIcon },
-  { label: 'Map Settings', href: '/admin/map-settings', icon: MapIcon },
-  { label: 'SEO', href: '/admin/seo', icon: Search },
-  { label: 'Site Identity', href: '/admin/identity', icon: User },
-  { label: 'Navigation', href: '/admin/navigation', icon: Menu },
+  { label: 'Map Settings', href: '/admin/settings', icon: MapIcon }, // Use existing settings folder
 ]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
