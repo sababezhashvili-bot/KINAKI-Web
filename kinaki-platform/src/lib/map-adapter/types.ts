@@ -23,6 +23,8 @@ export interface MarkerOptions {
   label?: string
   className?: string
   onClick?: () => void
+  draggable?: boolean
+  onDragEnd?: (coords: LngLat) => void
 }
 
 export interface MapAdapter {

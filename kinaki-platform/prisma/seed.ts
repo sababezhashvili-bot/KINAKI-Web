@@ -41,9 +41,9 @@ async function main() {
     create: {
       id: 'settings',
       siteName: 'KINAKI',
-      mapLat: 42.32,
-      mapLng: 43.35,
-      mapZoom: 5.8,
+      mapLat: 41.7151,
+      mapLng: 44.8271,
+      mapZoom: 12.0,
       email: 'hello@kinaki.ge',
       phone: '+995 555 000 000',
       address: 'Tbilisi, Georgia',

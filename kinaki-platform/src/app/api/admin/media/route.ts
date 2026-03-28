@@ -54,9 +54,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(savedMedia.length === 1 ? savedMedia[0] : savedMedia)
-  } catch (error) {
-    console.error('[ADMIN_MEDIA_POST]', error)
-    return new NextResponse('Internal Error', { status: 500 })
+  } catch (error: any) {
+    console.error('[ADMIN_MEDIA_POST] UNCAUGHT_ERROR:', error)
+    return new NextResponse(`Internal Error: ${error.message || 'Unknown'}`, { status: 500 })
   }
 }
 

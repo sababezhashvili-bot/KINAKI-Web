@@ -47,9 +47,10 @@ export default function MediaManager({ projectId, initialMedia = [], currentCove
       if (!currentCover && mediaList[0] && onSetCover) {
         onSetCover(mediaList[0].url)
       }
-    } catch (err) {
-      console.error(err)
-      alert('Upload failed')
+    } catch (err: any) {
+      console.error('[MediaManager Upload Error]', err)
+      const message = err.message || 'Upload failed'
+      alert(`Upload Failed: ${message}`)
     } finally {
       setIsUploading(false)
     }

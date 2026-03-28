@@ -9,9 +9,10 @@ import PinManager from './PinManager'
 interface ProjectFormProps {
   initialData?: any
   categories: any[]
+  allProjects?: any[]
 }
 
-export default function ProjectForm({ initialData, categories }: ProjectFormProps) {
+export default function ProjectForm({ initialData, categories, allProjects = [] }: ProjectFormProps) {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   
@@ -104,8 +105,9 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+              className="w-full bg-stone-50 border border-stone-200 p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white transition-all shadow-sm"
               required
+              placeholder="Project Name"
             />
           </div>
           
@@ -116,7 +118,7 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
               value={formData.slug}
               onChange={handleChange}
               placeholder="e.g. mountain-retreat"
-              className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900"
+              className="w-full bg-stone-50 border border-stone-200 p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white transition-all shadow-sm"
               required
             />
           </div>
@@ -212,6 +214,7 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
         <PinManager 
           initialLat={formData.latitude} 
           initialLng={formData.longitude} 
+          allProjects={allProjects}
           onLocationSelect={(lat, lng) => setFormData(p => ({ ...p, latitude: lat, longitude: lng }))}
         />
       </section>
@@ -227,8 +230,9 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
             value={formData.shortDesc}
             onChange={handleChange}
             rows={3}
-            className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 resize-none"
+            className="w-full bg-stone-50 border border-stone-200 p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white transition-all shadow-sm resize-none"
             required
+            placeholder="A brief overview of the project (visible on map cards)"
           />
         </div>
 
@@ -239,8 +243,9 @@ export default function ProjectForm({ initialData, categories }: ProjectFormProp
             value={formData.fullDesc}
             onChange={handleChange}
             rows={10}
-            className="w-full bg-stone-50 border-none p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 resize-none font-mono"
+            className="w-full bg-stone-50 border border-stone-200 p-4 text-[14px] font-light outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white transition-all shadow-sm resize-none"
             required
+            placeholder="Detailed project description..."
           />
         </div>
       </section>

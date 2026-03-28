@@ -22,9 +22,9 @@ if (!admin.apps.length) {
 }
 
 // Export a proxy or a helper to access the bucket safely
-export const bucket = admin.apps.length > 0 
+export const bucket = (admin.apps.length > 0 
   ? admin.storage().bucket() 
-  : null as unknown as ReturnType<typeof admin.storage>['bucket']
+  : null) as any
 
 export function getStorageBucket() {
   if (!admin.apps.length) {

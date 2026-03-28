@@ -1,10 +1,14 @@
 import { prisma } from '@/lib/db'
 import ProjectForm from '@/components/admin/ProjectForm'
+import { getMapData } from '@/lib/map-data'
 
 export default async function NewProjectPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: 'asc' }
-  })
+  const [categories, allProjects] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: 'asc' }
+    }),
+    getMapData()
+  ])
 
   return (
     <div className="p-10">
@@ -13,7 +17,7 @@ export default async function NewProjectPage() {
         <p className="text-stone-400 text-[13px] font-light">Add a new architectural masterpiece to the KINAKI portfolio.</p>
       </div>
       
-      <ProjectForm categories={categories} />
+      <ProjectForm categories={categories} allProjects={allProjects as any} />
     </div>
   )
 }

@@ -17,7 +17,7 @@ interface Project {
 interface ProjectMarkersProps {
   adapter: MapAdapter | null
   projects: Project[]
-  onMarkerClick: (project: Project) => void
+  onMarkerClickAction: (project: Project) => void
   visibleCategories: Record<string, boolean>
 }
 
@@ -30,37 +30,28 @@ const CATEGORY_CLASSNAMES: Record<string, string> = {
 export default function ProjectMarkers({
   adapter,
   projects,
-  onMarkerClick,
+  onMarkerClickAction,
   visibleCategories,
 }: ProjectMarkersProps) {
   // Add all markers on mount
   useEffect(() => {
     if (!adapter) return
 
-    const clickHandlers: Array<{ id: string; el: HTMLElement; handler: () => void }> = []
-
     projects.forEach(project => {
       const className =
         CATEGORY_CLASSNAMES[project.categorySlug] || 'kinaki-marker'
-      adapter.addMarker(project.id, { lat: project.lat, lng: project.lng }, {
+      
+        adapter.addMarker(project.id, { lat: project.lat, lng: project.lng }, {
         className,
-        size: 10,
+        size: 24, // Increased size from 10 to 24
+        onClick: () => onMarkerClickAction(project)
       })
-
-      // The adapter's marker elements need click handlers — attach via DOM
-      const el = document.querySelector(`[data-marker-id="${project.id}"]`) as HTMLElement
-      if (el) {
-        const handler = () => onMarkerClick(project)
-        el.addEventListener('click', handler)
-        clickHandlers.push({ id: project.id, el, handler })
-      }
     })
 
     return () => {
-      clickHandlers.forEach(({ el, handler }) => el?.removeEventListener('click', handler))
       projects.forEach(p => adapter.removeMarker(p.id))
     }
-  }, [adapter, projects]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [adapter, projects, onMarkerClickAction]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return null // DOM-based rendering via adapter
 }

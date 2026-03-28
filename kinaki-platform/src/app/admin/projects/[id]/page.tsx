@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import ProjectForm from '@/components/admin/ProjectForm'
+import { getMapData } from '@/lib/map-data'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -9,7 +10,7 @@ interface Props {
 export default async function EditProjectPage({ params }: Props) {
   const { id } = await params
   
-  const [project, categories] = await Promise.all([
+  const [project, categories, allProjects] = await Promise.all([
     prisma.project.findUnique({
       where: { id },
       select: {
@@ -38,7 +39,8 @@ export default async function EditProjectPage({ params }: Props) {
     }),
     prisma.category.findMany({
       orderBy: { name: 'asc' }
-    })
+    }),
+    getMapData()
   ])
 
   if (!project) notFound()
@@ -50,7 +52,7 @@ export default async function EditProjectPage({ params }: Props) {
         <p className="text-stone-400 text-[13px] font-light">Updating: <span className="text-stone-900">{project.title}</span></p>
       </div>
       
-      <ProjectForm initialData={project} categories={categories} />
+      <ProjectForm initialData={project} categories={categories} allProjects={allProjects as any} />
     </div>
   )
 }

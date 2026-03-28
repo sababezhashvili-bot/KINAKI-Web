@@ -141,12 +141,24 @@ class MapboxAdapterClass implements MapAdapter {
       })
     }
 
-    const marker = new (mapboxgl as any).Marker({ element: el })
+    const markerOptions: any = { element: el }
+    if (opts.draggable) {
+      markerOptions.draggable = true
+    }
+
+    const marker = new (mapboxgl as any).Marker(markerOptions)
       .setLngLat([Number(coords.lng), Number(coords.lat)])
       .addTo(this._map)
     
+    if (opts.draggable && opts.onDragEnd) {
+      marker.on('dragend', () => {
+        const lngLat = marker.getLngLat()
+        opts.onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat })
+      })
+    }
+    
     this.markers.set(id, marker)
-    console.log(`[MapboxAdapter] CUSTOM MARKER ${id} ADDED TO MAP`)
+    console.log(`[MapboxAdapter] CUSTOM MARKER ${id} ADDED TO MAP (draggable: ${!!opts.draggable})`)
   }
 
   removeMarker(id: string) {

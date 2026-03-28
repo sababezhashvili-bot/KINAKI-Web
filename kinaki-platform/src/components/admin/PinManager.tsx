@@ -1,68 +1,72 @@
-'use client'
-
-import React, { useEffect, useRef, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import React, { useState, useEffect } from 'react'
+import MainMap from '@/components/map/MainMap'
+import type { MapAdapter, LngLat } from '@/lib/map-adapter/types'
 
 interface PinManagerProps {
   initialLat?: number
   initialLng?: number
+  allProjects?: any[]
   onLocationSelect: (lat: number, lng: number) => void
 }
 
-export default function PinManager({ initialLat = 42.32, initialLng = 43.35, onLocationSelect }: PinManagerProps) {
-  const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<mapboxgl.Map | null>(null)
-  const marker = useRef<mapboxgl.Marker | null>(null)
-  
+export default function PinManager({ 
+  initialLat = 42.1, 
+  initialLng = 44.2, 
+  allProjects = [],
+  onLocationSelect 
+}: PinManagerProps) {
   const [coords, setCoords] = useState({ lat: initialLat, lng: initialLng })
+  const [adapter, setAdapter] = useState<MapAdapter | null>(null)
 
-  useEffect(() => {
-    if (!mapContainer.current) return
-    if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return
-
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [coords.lng, coords.lat],
-      zoom: 6,
-      attributionControl: false
+  const updatePin = (a: MapAdapter, newCoords: LngLat) => {
+    setCoords(newCoords)
+    onLocationSelect(newCoords.lat, newCoords.lng)
+    
+    // Use the adapter to update/re-add the temporary pin
+    a.addMarker('temp-pin', newCoords, {
+      color: '#171717',
+      size: 24,
+      draggable: true,
+      onDragEnd: (draggedCoords) => {
+        updatePin(a, draggedCoords)
+      }
     })
+  }
 
-    marker.current = new mapboxgl.Marker({ color: '#171717' })
-      .setLngLat([coords.lng, coords.lat])
-      .addTo(map.current)
+  const handleMapReady = (a: MapAdapter) => {
+    setAdapter(a)
+    // Add initial marker
+    updatePin(a, { lat: initialLat, lng: initialLng })
+  }
 
-    map.current.on('click', (e) => {
-      const { lng, lat } = e.lngLat
-      setCoords({ lat, lng })
-      marker.current?.setLngLat([lng, lat])
-      onLocationSelect(lat, lng)
-    })
-
-    return () => {
-      map.current?.remove()
+  const handleMapClick = (c: LngLat) => {
+    if (adapter) {
+      updatePin(adapter, c)
     }
-  }, [])
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-end">
         <div>
           <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-1">Project Pin Location</h3>
-          <p className="text-[11px] text-stone-400">Click on the map to place the project marker.</p>
+          <p className="text-[11px] text-stone-400">Click to place or drag to move the project marker.</p>
         </div>
         <div className="text-[10px] font-mono text-stone-500 bg-stone-50 px-3 py-1.5 border border-stone-100">
           {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
         </div>
       </div>
       
-      <div 
-        ref={mapContainer} 
-        className="h-80 w-full bg-stone-100 border border-stone-200 grayscale-[0.5]"
-      />
+      <div className="h-80 w-full relative">
+        <MainMap 
+          interactive={true} 
+          onLocationSelect={handleMapClick}
+          onMapReady={handleMapReady}
+          projects={allProjects}
+          initialCenter={{ lat: coords.lat, lng: coords.lng }}
+          initialZoom={6}
+        />
+      </div>
     </div>
   )
 }

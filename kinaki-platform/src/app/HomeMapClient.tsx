@@ -8,8 +8,8 @@ import ProjectPreviewPanel from '@/components/map/ProjectPreviewPanel'
 import type { MapAdapter } from '@/lib/map-adapter'
 import { EditControl } from '@/components/admin/EditControl'
 
-// Dynamically import KinakiMap to avoid SSR issues with Mapbox
-const KinakiMap = dynamic(() => import('@/components/map/KinakiMap'), {
+// Dynamically import MainMap to avoid SSR issues with Mapbox
+const MainMap = dynamic(() => import('@/components/map/MainMap'), {
   ssr: false,
   loading: () => (
     <div className="absolute inset-0 bg-stone-100 flex items-center justify-center">
@@ -114,9 +114,9 @@ export function HomeMapClient({ projects }: { projects: MapObject[] }) {
 
         console.log(`[HomeMapClient] Adding marker for ${item.title} at ${lat}, ${lng}`)
         adapter.addMarker(item.id, { lat, lng }, {
-          className: isProject ? 'project-marker' : 'pin-marker',
-          size: isProject ? 24 : 14,
-          color: '#1c1917',
+          className: 'kinaki-marker', // Use existing CSS class
+          size: isProject ? 32 : 18, // Bigger size
+          color: isProject ? '#1c1917' : '#57534e',
           onClick: () => {
             if (isProject) {
               handleMarkerClick(item)
@@ -153,7 +153,7 @@ export function HomeMapClient({ projects }: { projects: MapObject[] }) {
 
   return (
     <div className="fixed inset-0">
-      <KinakiMap onMapReady={handleMapReady}>
+      <MainMap onMapReady={handleMapReady}>
         <MapControlPanel
           adapter={adapter}
           isMobile={isMobile}
@@ -176,7 +176,7 @@ export function HomeMapClient({ projects }: { projects: MapObject[] }) {
             onClick={() => router.push('/admin/projects/new')}
           />
         </div>
-      </KinakiMap>
+      </MainMap>
 
       <ProjectPreviewPanel project={selectedProject} onClose={handleClose} />
     </div>
