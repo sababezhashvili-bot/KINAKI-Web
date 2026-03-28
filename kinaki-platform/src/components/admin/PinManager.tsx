@@ -49,11 +49,36 @@ export default function PinManager({
     <div className="space-y-4">
       <div className="flex justify-between items-end">
         <div>
-          <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-stone-400 mb-1">Project Pin Location</h3>
-          <p className="text-[11px] text-stone-400">Click to place or drag to move the project marker.</p>
+          <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-stone-900 mb-1">Project Pin Location</h3>
+          <p className="text-[11px] text-stone-400 uppercase tracking-widest leading-relaxed">Click to place or drag to move the project marker. <br/>You can also enter coordinates manually below.</p>
         </div>
-        <div className="text-[10px] font-mono text-stone-500 bg-stone-50 px-3 py-1.5 border border-stone-100">
-          {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-stone-400">Latitude</span>
+            <input 
+              type="number" 
+              step="any"
+              value={coords.lat}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value)
+                if (!isNaN(val) && adapter) updatePin(adapter, { ...coords, lat: val })
+              }}
+              className="text-[11px] font-mono text-stone-900 bg-white px-3 py-1.5 border border-stone-200 w-24 outline-none focus:ring-1 focus:ring-stone-900"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] uppercase tracking-widest text-stone-400">Longitude</span>
+            <input 
+              type="number" 
+              step="any"
+              value={coords.lng}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value)
+                if (!isNaN(val) && adapter) updatePin(adapter, { ...coords, lng: val })
+              }}
+              className="text-[11px] font-mono text-stone-900 bg-white px-3 py-1.5 border border-stone-200 w-24 outline-none focus:ring-1 focus:ring-stone-900"
+            />
+          </div>
         </div>
       </div>
       

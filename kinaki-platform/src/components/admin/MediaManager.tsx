@@ -37,7 +37,10 @@ export default function MediaManager({ projectId, initialMedia = [], currentCove
         body: formData
       })
       
-      if (!res.ok) throw new Error('Upload failed')
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => 'Unknown error')
+        throw new Error(`Upload failed: ${res.status} ${res.statusText} - ${errorText}`)
+      }
       
       const newMedia = await res.json()
       const mediaList = Array.isArray(newMedia) ? newMedia : [newMedia]
