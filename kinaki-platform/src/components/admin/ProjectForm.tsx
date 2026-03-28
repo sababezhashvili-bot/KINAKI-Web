@@ -93,7 +93,7 @@ export default function ProjectForm({ initialData, categories, allProjects = [] 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 max-w-4xl pb-48 relative">
+    <form onSubmit={handleSubmit} className="space-y-12 max-w-4xl pb-24 relative">
       {/* Header Info */}
       <section className="bg-white border border-stone-100 p-10 space-y-8">
         <h2 className="text-[11px] uppercase tracking-[0.3em] font-bold text-stone-400">Basic Information</h2>
@@ -261,8 +261,8 @@ export default function ProjectForm({ initialData, categories, allProjects = [] 
       </section>
 
 
-      {/* Sticky Save Bar - Now relative to the form content to avoid sidebar overlap */}
-      <div className="sticky bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-stone-100 p-6 flex justify-between items-center z-[50] mt-12 -mx-10 px-10 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)]">
+      {/* Actions Bar - Simplified, non-sticky to prevent covering fields */}
+      <div className="bg-white border border-stone-100 p-10 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-8">
           <div className="text-[10px] uppercase tracking-widest text-stone-400">
             Last updated: {initialData?.updatedAt ? new Date(initialData.updatedAt).toLocaleString() : 'Never'}
